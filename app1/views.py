@@ -134,3 +134,81 @@ def how_render_works_drf(request):
 # #                 ),
 # #                 'placeholder': f'Enter your {field.label.lower()}'
 # #             })
+
+
+
+
+
+#post reqeust.data and send as response
+import json
+@api_view(['POST'])
+def echo_data(request):
+    #accept images from the request and send back as response
+    image = request.FILES.get('image')
+    print(type(image))
+    #image available attributes 
+    print(image.file)
+
+    print(image.name)
+    print(image.size)
+    print(image.content_type)
+
+    print(request.data)
+    return Response({
+        'image': image.name,
+        'image_size': image.size
+    })
+
+
+
+#show case example of request headers and params 
+
+@api_view(['GET'])
+def show_request_details(request):
+    headers = request.headers
+    category_value = request.query_params.get('category',None)
+    if category_value:
+        pass
+        #filter the dictionary 
+    
+    return Response({
+        'headers': dict(headers),
+        
+    })
+
+
+
+#classwork 
+
+#use params to filter a list of dictionary of items and return the filtered items as response
+
+#example list of items
+items = [
+    {'id': 1, 'name': 'item1', 'category': 'A'},
+    {'id': 2, 'name': 'item2', 'category': 'B'},
+    {'id': 3, 'name': 'item3', 'category': 'A'}
+]
+
+#if params is passed as ?category=A then return only items with category A
+
+filtered_items = [
+    {'id': 1, 'name': 'item1', 'category': 'A'},
+    {'id': 3, 'name': 'item3', 'category': 'A'}
+]
+
+@api_view(['GET'])
+def filter_items(request):
+    items = [
+    {'id': 1, 'name': 'item1', 'category': 'A'},
+    {'id': 2, 'name': 'item2', 'category': 'B'},
+    {'id': 3, 'name': 'item3', 'category': 'A'}]
+    category_value = request.query_params.get('category', None)
+    if category_value:
+        filtered_items = [item for item in items if category_value == item['category']]
+
+    else:
+        filtered_items = items
+
+    return Response({
+        'items': filtered_items
+    })
