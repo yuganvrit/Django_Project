@@ -8,4 +8,5 @@ urlpatterns = [
     # path('display-student/', views.display_student_data, name='display-student'),
     # path('create-student/', views.create_student_data, name='create_student'),
     path('student/', views.get_or_create_student, name='get_or_create_student'),
+    path('books-author/', views.create_books_with_author, name='create_books_with_author')
 ]

@@ -1,82 +1,66 @@
-# import dns.resolver
-# import smtplib
-# import socks
-# import socket
-# import requests
+import socks
+import ssl
 
-# # NetNut Credentials
-# # Use the standard global SOCKS5 gateway for reliability
-# SOCKS_HOST = "gw.netnut.net" 
-# SOCKS_PORT = 9595 # SMTP MUST use 9595
-# PROXY_USER = "Vrittechnologies-res-any"
-# PROXY_PASS = "Kj03iX67qIVcVi8"
+def recv(sock):
+    return sock.recv(4096).decode(errors="ignore").strip()
 
-# # HTTP format for the initial validation check
-# HTTP_PROXY_URL = f"http://{PROXY_USER}:{PROXY_PASS}@gw.netnut.net:5959"
-# http_proxies = {
-#     "http": HTTP_PROXY_URL,
-#     "https": HTTP_PROXY_URL,
-# }
+def send(sock, cmd):
+    sock.sendall((cmd + "\r\n").encode())
+    return recv(sock)
 
-# def validate_proxy():
-#     try:
-#         # Use a simple timeout to check if the HTTP proxy responds
-#         response = requests.get("https://api.ipify.org?format=json", proxies=http_proxies, timeout=10)
-#         print(f"✅ Proxy Connection Successful. IP: {response.json()['ip']}")
-#         return True
-#     except Exception as e:
-#         print(f"❌ Proxy Validation Failed: {e}")
-#         return False
+def smtp_mx_check(target_email):
+    try:
+        proxy_host = "gw-open.netnut.net"
+        proxy_port = 9595
+        proxy_user = "Vrittechnologies-res-np"
+        proxy_pass = "Kj03iX67qIVcVi8"
 
-# def check_email_existence(target_email):
-#     domain = target_email.split('@')[-1]
-    
-#     try:
-#         # 1. DNS Resolution (Do this BEFORE switching to SOCKS mode)
-#         print(f"🔍 Finding MX records for {domain}...")
-#         mx_records = dns.resolver.resolve(domain, 'MX')
-#         mx_host = str(sorted(mx_records, key=lambda r: r.preference)[0].exchange).rstrip('.')
-#         mx_ip = str(dns.resolver.resolve(mx_host, 'A')[0])
-#         print(f"📍 Mail Server: {mx_host} ({mx_ip})")
+        mx_host = "aspmx.l.google.com"
 
-#         # 2. Switch to SOCKS5 for the raw TCP connection
-#         socks.set_default_proxy(
-#             socks.SOCKS5, 
-#             SOCKS_HOST, 
-#             SOCKS_PORT, 
-#             username=PROXY_USER, 
-#             password=PROXY_PASS
-#         )
-#         socket.socket = socks.socksocket
+        s = socks.socksocket()
+        s.settimeout(20)
+        s.set_proxy(
+            socks.SOCKS5,
+            proxy_host,
+            proxy_port,
+            True,
+            proxy_user,
+            proxy_pass
+        )
 
-#         # 3. SMTP Handshake
-#         print(f"🚀 Connecting to {mx_ip} via SOCKS5 (Port {SOCKS_PORT})...")
-#         server = smtplib.SMTP(timeout=20)
-#         server.set_debuglevel(1) 
-        
-#         # Connect to the mail server on Port 25
-#         server.connect(mx_ip, 25)
-#         server.helo("vrit-tech.com")
-#         server.mail('verify@vrit-tech.com')
-        
-#         # 4. The RCPT TO Check
-#         code, message = server.rcpt(target_email)
-#         server.quit()
+        print("Connecting to Google MX (port 25)...")
+        s.connect((mx_host, 25))
+        print("S:", recv(s))
 
-#         if code == 250:
-#             return True, f"✅ {target_email} exists."
-#         elif code == 550:
-#             return False, f"❌ {target_email} does not exist."
-#         else:
-#             return None, f"⚠️ Server response {code}: {message}"
+        # EHLO
+        print("S:", send(s, "EHLO example.com"))
 
-#     except Exception as e:
-#         return None, f"🔥 SMTP Error: {str(e)}"
+        # STARTTLS (optional but supported)
+        print("S:", send(s, "STARTTLS"))
+        context = ssl.create_default_context()
+        s = context.wrap_socket(s, server_hostname=mx_host)
 
-# # --- Run ---
-# if validate_proxy():
-#     email_to_test = "iamyugdashaudi@gmail.com"
-#     exists, result = check_email_existence(email_to_test)
-#     print(f"\n--- FINAL RESULT ---")
-#     print(result)
+        # EHLO again
+        print("S:", send(s, "EHLO example.com"))
 
+        # MAIL / RCPT (policy check only)
+        print("S:", send(s, "MAIL FROM:<test@example.com>"))
+        response = send(s, f"RCPT TO:<{target_email}>")
+        print(f"S (Result for {target_email}): {response}")
+
+        if response.startswith("250"):
+            print("✅ SMTP routing accepted (NOT existence confirmation)")
+        elif response.startswith("550"):
+            print("❌ Rejected by policy")
+        else:
+            print("⚠️ SMTP response received")
+
+        send(s, "QUIT")
+        s.close()
+
+    except Exception as e:
+        print("Error:", e)
+
+
+# RUN
+smtp_mx_check("rajivshakya@lftechnology.com")

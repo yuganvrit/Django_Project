@@ -7,8 +7,9 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
 from .random_class import Student
 from .models import Student 
-from .serializers import NewStudentSerializer
-from rest_framework import status 
+from .serializers import NewStudentSerializer,AuthorSerializer
+from rest_framework import status
+ 
 
 # class SimpleReponseView(APIView):
 #     def get(self, request):
@@ -268,5 +269,19 @@ def get_or_create_student(request):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+
+
+
+@api_view(['POST'])
+def create_books_with_author (request):
+    serializer = AuthorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response('books and author has been created', status=status.HTTP_201_CREATED)
+    
+
+    
+
 
 
