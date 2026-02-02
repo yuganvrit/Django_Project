@@ -276,12 +276,12 @@ def get_or_create_student(request):
 @api_view(['POST'])
 def create_books_with_author (request):
     serializer = AuthorSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
+    serializer.is_valid(raise_exception=True) #validate method will be called 
+    serializer.save()  #serializer create method will be called
     return Response('books and author has been created', status=status.HTTP_201_CREATED)
     
 
     
-
+#suman are u here
 
 
