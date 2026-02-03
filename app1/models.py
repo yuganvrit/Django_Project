@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 class Student(models.Model):
     name = models.CharField(max_length=100)
@@ -11,6 +12,11 @@ class Student(models.Model):
     def __str__(self):
         return self.name
     
+
+    @property
+    def is_adult(self):
+        return self.age >= 18
+ 
 
 class Author(models.Model):
     name = models.CharField(max_length=100)
@@ -46,6 +52,23 @@ class PhoneNumber(models.Model):
 
     def __str__(self):
         return self.phone_number
+    
+
+
+
+
+#Assignment 
+
+#create restful apis for student teacher and course for crud operation 
+#relation will be like student will have course rreference meaning one student
+#can be enrolled in multiple courses and 
+#and one teacher can in only one course 
+#create models serializer and function based veiws
+    
+
+
+
+
     
 
 

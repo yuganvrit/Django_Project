@@ -24,7 +24,39 @@ class StudentSerializer(serializers.Serializer):
 class NewStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = "__all__"
+        fields = ['name','age','email','grade','is_adult']
+
+
+
+
+
+
+
+    def to_internal_value(self, data):
+        return data
+
+
+    def validate(self, attrs):
+        age = attrs.get('age')
+        if age > 5:
+            raise serializers.ValidationError("Serailizer Age not must be greater than 5")
+        return attrs
+    
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
+    
+
+    def create(self, validated_data):
+        return super().create(validated_data)
+    
+
+    def to_representation(self, instance):
+        #uppercase the name attribute of instance 
+        # instance.name = instance.name.upper()
+        # instance.adult = instance.is_adult
+        # print(instance.adult)
+        return super().to_representation(instance)
 
 
 
