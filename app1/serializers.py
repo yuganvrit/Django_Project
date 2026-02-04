@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Student,Book,Author
+from django.contrib.auth.models import User
 
 class StudentSerializer(serializers.Serializer):
     grade = serializers.IntegerField()
@@ -97,6 +98,25 @@ class AuthorSerializer(serializers.ModelSerializer):
         return author
 
 
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+    class Meta:
+        model = User
+        fields = ['username','email','password','confirm_password']
+
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        confirm_password = attrs.get('confirm_password')
+        if password != confirm_password:
+            raise serializers.ValidationError("Password and confirm password does not match")
+        return attrs
+    
+
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        return super().create(validated_data)
 
 
     

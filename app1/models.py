@@ -10,12 +10,22 @@ class Student(models.Model):
 
 
     def __str__(self):
+        
         return self.name
     
 
     @property
     def is_adult(self):
         return self.age >= 18
+    
+
+    def save(self, *args, **kwargs): # new_fields)
+        if self.age < 5:
+            raise ValidationError("Age must be greater than 5")
+        super().save(*args, **kwargs)
+    
+
+
  
 
 class Author(models.Model):
@@ -34,7 +44,15 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+
+# first_author = Author.objects.first()
+# get_all_books = Book.objects.filter(author=first_author)
+
+
+# get_all_books =first_author.books.all()
+
+
 
 
 class Profile(models.Model):
@@ -43,8 +61,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-    
-
 
 class PhoneNumber(models.Model):
     phone_number = models.CharField(max_length=15)

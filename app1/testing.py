@@ -1,5 +1,6 @@
 import socks
 import ssl
+import dns.resolver
 
 def recv(sock):
     return sock.recv(4096).decode(errors="ignore").strip()
@@ -8,14 +9,26 @@ def send(sock, cmd):
     sock.sendall((cmd + "\r\n").encode())
     return recv(sock)
 
+
+def get_primary_mx(domain):
+    """
+    Returns the single highest-priority MX host
+    """
+    answers = dns.resolver.resolve(domain, "MX")
+
+    # pick MX with lowest preference value
+    mx = min(answers, key=lambda r: r.preference)
+    return str(mx.exchange).rstrip(".")
+
 def smtp_mx_check(target_email):
     try:
         proxy_host = "gw-open.netnut.net"
         proxy_port = 9595
-        proxy_user = "Vrittechnologies-res-np"
+        proxy_user = "Vrittechnologies-evsh-np"
         proxy_pass = "Kj03iX67qIVcVi8"
 
-        mx_host = "aspmx.l.google.com"
+        domain = target_email.split("@")[1]
+        mx_host = get_primary_mx(domain)
 
         s = socks.socksocket()
         s.settimeout(20)
@@ -49,11 +62,11 @@ def smtp_mx_check(target_email):
         print(f"S (Result for {target_email}): {response}")
 
         if response.startswith("250"):
-            print("✅ SMTP routing accepted (NOT existence confirmation)")
+            print("SMTP routing accepted (NOT existence confirmation)")
         elif response.startswith("550"):
-            print("❌ Rejected by policy")
+            print("Rejected by policy")
         else:
-            print("⚠️ SMTP response received")
+            print("SMTP response received")
 
         send(s, "QUIT")
         s.close()
@@ -63,4 +76,4 @@ def smtp_mx_check(target_email):
 
 
 # RUN
-smtp_mx_check("rajivshakya@lftechnology.com")
+smtp_mx_check("afoad25@amazon.co.jp")

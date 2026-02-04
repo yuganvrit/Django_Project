@@ -7,7 +7,7 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
 from .random_class import Student
 from .models import Student 
-from .serializers import NewStudentSerializer,AuthorSerializer
+from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer
 from rest_framework import status
  
 
@@ -281,7 +281,22 @@ def create_books_with_author (request):
     return Response('books and author has been created', status=status.HTTP_201_CREATED)
     
 
-    
-#suman are u here
+
+
+
+from django.contrib.auth.models import User
+
+
+
+@api_view(['POST','GET'])
+def register_user(request):
+    if request.method == 'POST':
+        serializer = UserRegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+    else:
+        pass
 
 
