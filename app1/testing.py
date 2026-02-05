@@ -76,4 +76,4 @@ def smtp_mx_check(target_email):
 
 
 # RUN
-smtp_mx_check("afoad25@amazon.co.jp")
+smtp_mx_check("ereshpathak@lftechnology.com")

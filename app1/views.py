@@ -297,6 +297,8 @@ def register_user(request):
         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
     else:
-        pass
+        users = User.objects.all()
+        serializer = UserRegisterSerializer(users,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
-
+        
