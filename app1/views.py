@@ -372,20 +372,19 @@ class LoginUserAPIView(APIView):
     
 
 class RegisterUserAPIView(APIView):
-    def get(self, request):
-        users = User.objects.all()
-        serializer = UserRegisterSerializer(users, many = True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
     def post(self, request):
-        serializer = UserRegisterSerializer(deta=request.data)
+        serializer = UserRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'message': 'user registered successfully'}, status=status.HTTP_201_CREATED)
     
 
-
-
-    
+class UserListAPIView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserRegisterSerializer(users, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
