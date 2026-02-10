@@ -7,10 +7,15 @@ from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
 from .random_class import Student
 from .models import Student 
-from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer
+from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer,LoginSerializer
 from rest_framework import status
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
  
-
 # class SimpleReponseView(APIView):
 #     def get(self, request):
 #         data = {
@@ -300,5 +305,55 @@ def register_user(request):
         users = User.objects.all()
         serializer = UserRegisterSerializer(users,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+    
 
-        
+
+@api_view(['POST'])
+def login_user(request):
+    serializer = LoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    print(serializer.validated_data)
+    print(type(serializer.validated_data))
+
+    #get the username and password
+    username = serializer.validated_data.get('username')
+    password = serializer.validated_data.get('password')
+
+    #authentication
+    user = authenticate(request,username=username,password=password)
+    print(user)
+
+    #if user is not found 
+    if not user:
+        return Response({'error':'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
+
+    # #if user is found 
+    # #return auth token 
+    # token,created = Token.objects.get_or_create(user=user)
+    # print(token)
+    token = RefreshToken.for_user(user)
+    access_token = token.access_token
+    refresh_token = token
+    return Response({
+        'access_token':str(access_token),
+        'refresh_token':str(refresh_token)
+    },
+    status=status.HTTP_200_OK
+    )
+
+
+
+#protected endpoint
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def simple_hello_world(request):
+    return Response({'msg':'hello world'},status=status.HTTP_200_OK)
+
+
+
+
+
+    
+
+
