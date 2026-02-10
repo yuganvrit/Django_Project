@@ -10,6 +10,7 @@ urlpatterns = [
     path('student/', views.get_or_create_student, name='get_or_create_student'),
     path('books-author/', views.create_books_with_author, name='create_books_with_author'),
     path('users/', views.register_user, name='users'),
-    path('users/login', views.login_user, name='login_users'),
-    path('hello-world/', views.simple_hello_world, name='hello-world')
+    # path('users/login', views.login_user, name='login_users'),
+    path('hello-world/', views.simple_hello_world, name='hello-world'),
+    path('users/login/', views.LoginUserAPIView.as_view(), name = 'LoginUser')
 ]
