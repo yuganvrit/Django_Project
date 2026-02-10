@@ -308,38 +308,38 @@ def register_user(request):
     
 
 
-@api_view(['POST'])
-def login_user(request):
-    serializer = LoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    print(serializer.validated_data)
-    print(type(serializer.validated_data))
+# @api_view(['POST'])
+# def login_user(request):
+#     serializer = LoginSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     print(serializer.validated_data)
+#     print(type(serializer.validated_data))
 
-    #get the username and password
-    username = serializer.validated_data.get('username')
-    password = serializer.validated_data.get('password')
+#     #get the username and password
+#     username = serializer.validated_data.get('username')
+#     password = serializer.validated_data.get('password')
 
-    #authentication
-    user = authenticate(request,username=username,password=password)
-    print(user)
+#     #authentication
+#     user = authenticate(request,username=username,password=password)
+#     print(user)
 
-    #if user is not found 
-    if not user:
-        return Response({'error':'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
+#     #if user is not found 
+#     if not user:
+#         return Response({'error':'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
 
-    # #if user is found 
-    # #return auth token 
-    # token,created = Token.objects.get_or_create(user=user)
-    # print(token)
-    token = RefreshToken.for_user(user)
-    access_token = token.access_token
-    refresh_token = token
-    return Response({
-        'access_token':str(access_token),
-        'refresh_token':str(refresh_token)
-    },
-    status=status.HTTP_200_OK
-    )
+#     # #if user is found 
+#     # #return auth token 
+#     # token,created = Token.objects.get_or_create(user=user)
+#     # print(token)
+#     token = RefreshToken.for_user(user)
+#     access_token = token.access_token
+#     refresh_token = token
+#     return Response({
+#         'access_token':str(access_token),
+#         'refresh_token':str(refresh_token)
+#     },
+#     status=status.HTTP_200_OK
+#     )
 
 
 
@@ -351,6 +351,24 @@ def simple_hello_world(request):
     return Response({'msg':'hello world'},status=status.HTTP_200_OK)
 
 
+class LoginUserAPIView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        username = serializer.validated_data('username')
+        password = serializer.validated_data('password')
+
+        user = authenticate(request, username = username, password = password)
+
+        if not user:
+            return Response({'message': 'invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+        refresh = RefreshToken.for_user('user')
+        acccess = refresh.access_token
+        return Response({
+            'refresh_token': str(refresh),
+            'access_token': str(acccess)
+        })
 
 
 
