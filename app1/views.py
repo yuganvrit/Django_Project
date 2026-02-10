@@ -356,19 +356,20 @@ class LoginUserAPIView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        username = serializer.validated_data('username')
-        password = serializer.validated_data('password')
+        username = serializer.validated_data.get('username')
+        password = serializer.validated_data.get('password')
 
         user = authenticate(request, username = username, password = password)
 
         if not user:
             return Response({'message': 'invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
-        refresh = RefreshToken.for_user('user')
-        acccess = refresh.access_token
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
         return Response({
             'refresh_token': str(refresh),
-            'access_token': str(acccess)
+            'access_token': str(access)
         })
+
 
 
 
