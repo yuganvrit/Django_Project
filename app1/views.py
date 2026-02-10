@@ -293,18 +293,18 @@ from django.contrib.auth.models import User
 
 
 
-@api_view(['POST','GET'])
-def register_user(request):
-    if request.method == 'POST':
-        serializer = UserRegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+# @api_view(['POST','GET'])
+# def register_user(request):
+#     if request.method == 'POST':
+#         serializer = UserRegisterSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-    else:
-        users = User.objects.all()
-        serializer = UserRegisterSerializer(users,many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+#     else:
+#         users = User.objects.all()
+#         serializer = UserRegisterSerializer(users,many=True)
+#         return Response(serializer.data,status=status.HTTP_200_OK)
     
 
 
@@ -369,6 +369,13 @@ class LoginUserAPIView(APIView):
             'refresh_token': str(refresh),
             'access_token': str(access)
         })
+    
+
+class RegisterUserAPIView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserRegisterSerializer(users, many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
