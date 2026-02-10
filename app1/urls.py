@@ -9,8 +9,9 @@ urlpatterns = [
     # path('create-student/', views.create_student_data, name='create_student'),
     path('student/', views.get_or_create_student, name='get_or_create_student'),
     path('books-author/', views.create_books_with_author, name='create_books_with_author'),
-    path('users/register/', views.RegisterUserAPIView.as_view(), name='users'),
+    path('users/register/', views.RegisterUserAPIView.as_view(), name='register-users'),
     # path('users/login', views.login_user, name='login_users'),
     path('hello-world/', views.simple_hello_world, name='hello-world'),
-    path('users/login/', views.LoginUserAPIView.as_view(), name = 'LoginUser')
+    path('users/login/', views.LoginUserAPIView.as_view(), name = 'LoginUser'),
+    path('users/', views.UserListAPIView.as_view(), name='users')
 ]
