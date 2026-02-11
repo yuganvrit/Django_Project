@@ -11,5 +11,8 @@ urlpatterns = [
     path('books-author/', views.create_books_with_author, name='create_books_with_author'),
     path('users/', views.register_user, name='users'),
     path('users/login', views.login_user, name='login_users'),
-    path('hello-world/', views.simple_hello_world, name='hello-world')
+    path('hello-world/', views.simple_hello_world, name='hello-world'),
+    path('class-based-view/',views.NormalClassBasedView.as_view(),name='class-based-view'),
+    path('delete-student/<int:pk>/',views.DeleteOrUpdateStudentView.as_view(),name='delete-student'),
+    path('generic-student/',views.StudentGenericView.as_view(),name='generic-student/')
 ]

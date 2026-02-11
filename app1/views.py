@@ -5,7 +5,6 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
-from .random_class import Student
 from .models import Student 
 from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer,LoginSerializer
 from rest_framework import status
@@ -305,6 +304,7 @@ def register_user(request):
         users = User.objects.all()
         serializer = UserRegisterSerializer(users,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+
     
 
 
@@ -352,8 +352,86 @@ def simple_hello_world(request):
 
 
 
+#class based views 
+from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+class NormalClassBasedView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        if request.user.is_superuser:
+            return Response({'msg':'superuser'},status=status.HTTP_200_OK)
+        elif request.user.is_authenticated:
+            return Response({'msg':'authenticated user'},status=status.HTTP_200_OK)
+        else:
+            return Response({'msg':'anonymous user'},status=status.HTTP_200_OK)
+        
+    
+    def post(self,request):
+        return Response({'msg':'post hello world'},status=status.HTTP_200_OK)
+    
+    
+
+
+class DeleteOrUpdateStudentView(APIView):
+    def delete(self,request,pk):
+        #first check if student exist 
+        student = Student.objects.filter(id=pk).first()
+        if student:
+            student.delete()
+            return Response({'message':f'{pk} student is deleted'},status=status.HTTP_204_NO_CONTENT)
+        
+        else:
+            return Response({'message': f'{pk} student not found'},status=status.HTTP_200_OK)
+            
+
+    #update student info
+
+    def put(self,request,pk):        
+        updated_data = request.data
+        student = Student.objects.filter(id=pk).first()
+        if student:
+            serializer = NewStudentSerializer(instance=student,data=updated_data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        
+        else:
+            return Response({'msg':'student not found'},status=status.HTTP_400_BAD_REQUEST)
 
 
     
+    def patch(self,request,pk):
+        updated_data = request.data
+        student = Student.objects.filter(id=pk).first()
+        if student:
+            serializer = NewStudentSerializer(instance=student,data=updated_data,partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        
+        else:
+            return Response({'msg':'student not found'},status=status.HTTP_400_BAD_REQUEST)
 
+
+
+        
+#mixin in class based view
+
+from rest_framework import generics
+from rest_framework import mixins
+
+
+
+class StudentGenericView(generics.GenericAPIView,mixins.CreateModelMixin):
+    serializer_class = NewStudentSerializer
+    queryset = Student.objects.all()
+
+    def post(self,request,*args,**kwargs):
+        return self.create(request,*args,**kwargs)
+
+
+
+    def perform_create(self, serializer):
+        print('hello student is being created. Please wait for a while')
+        serializer.save()
 
