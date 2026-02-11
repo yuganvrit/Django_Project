@@ -1,8 +1,6 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializer import SimpleResponseSerializer
-from django.http import HttpResponse
+from django.shortcuts import render
 from rest_framework.decorators import api_view
+<<<<<<< HEAD
 from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
 from .models import Student 
@@ -419,19 +417,38 @@ class DeleteOrUpdateStudentView(APIView):
 
 from rest_framework import generics
 from rest_framework import mixins
+from rest_framework.generics import GenericAPIView
 
 
 
-class StudentGenericView(generics.GenericAPIView,mixins.CreateModelMixin):
+class StudentGenericView(GenericAPIView,mixins.CreateModelMixin,mixins.ListModelMixin):
     serializer_class = NewStudentSerializer
     queryset = Student.objects.all()
 
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs)
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
+class UserDetailUpdateDeleteAPIView(mixins.RetrieveModelMixin,
+                                   mixins.UpdateModelMixin,
+                                   mixins.DestroyModelMixin,
+                                   GenericAPIView):
+    """
+    Concrete view for retrieving, updating or deleting a model instance.
+    """
+    queryset = Student.objects.all()
+    serializer_class = NewStudentSerializer
 
-    def perform_create(self, serializer):
-        print('hello student is being created. Please wait for a while')
-        serializer.save()
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
+    def put(self, request, *args, **kwargs):
+        response = self.update(request, *args, **kwargs)
+        return Response({"message":"User updated successfully", "user":response.data}, status=response.status_code)
+
+    def delete(self, request, *args, **kwargs):
+        response =  self.destroy(request, *args, **kwargs)
+        return Response({"message": "User deleted successfully",}, status=response.status_code)
