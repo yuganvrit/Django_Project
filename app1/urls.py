@@ -14,5 +14,6 @@ urlpatterns = [
     path('hello-world/', views.simple_hello_world, name='hello-world'),
     path('class-based-view/',views.NormalClassBasedView.as_view(),name='class-based-view'),
     path('delete-student/<int:pk>/',views.DeleteOrUpdateStudentView.as_view(),name='delete-student'),
-    path('generic-student/',views.StudentGenericView.as_view(),name='generic-student/')
+    path('generic-student/',views.StudentGenericView.as_view(),name='generic-student/'),
+    path('generic-student-delete-update-delete/<int:pk>/',views.UserDetailUpdateDeleteAPIView.as_view(),name='generic-student/')
 ]
