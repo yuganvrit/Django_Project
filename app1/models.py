@@ -70,6 +70,33 @@ class PhoneNumber(models.Model):
         return self.phone_number
     
 
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Teacher(models.Model):
+    name = models.CharField(max_length=100)
+    course = models.ForeignKey(Course,on_delete=models.CASCADE,related_name='teachers')
+
+
+
+    def __str__(self):
+        return self.name
+
+
+
+class ClassRoom(models.Model):
+    name = models.CharField(max_length=100)
+    class_teacher = models.OneToOneField(Teacher,on_delete=models.CASCADE,related_name='classroom')
+
+
+    def __str__(self):
+        return self.name
+
 
 
 

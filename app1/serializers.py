@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Student,Book,Author
+from .models import Student,Book,Author,Course
 from django.contrib.auth.models import User
 
 class StudentSerializer(serializers.Serializer):
@@ -136,3 +136,7 @@ class LoginSerializer(serializers.Serializer):
     
 
 
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course 
+        fields = "__all__"

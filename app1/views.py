@@ -5,8 +5,8 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
-from .models import Student 
-from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer,LoginSerializer
+from .models import Student,Course
+from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer,LoginSerializer,CourseSerializer
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -14,6 +14,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import viewsets
+from rest_framework.decorators import action
  
 # class SimpleReponseView(APIView):
 #     def get(self, request):
@@ -419,6 +421,13 @@ class DeleteOrUpdateStudentView(APIView):
 
 from rest_framework import generics
 from rest_framework import mixins
+from rest_framework.generics import ListAPIView
+from rest_framework.generics import CreateAPIView
+from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import DestroyAPIView
+from rest_framework.generics import RetrieveAPIView
+
+
 
 
 
@@ -434,4 +443,27 @@ class StudentGenericView(generics.GenericAPIView,mixins.CreateModelMixin):
     def perform_create(self, serializer):
         print('hello student is being created. Please wait for a while')
         serializer.save()
+
+
+
+
+
+
+class CourseViewset(viewsets.ModelViewSet):
+    # permission_classes = [IsAuthenticated]
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+
+
+    #new endpoint to active or deactive status of course 
+    @action(methods=['post'],detail=False,url_path='active',url_name='active')
+    def active(self,request):
+        id = request.data.get('id')
+        course = Course.objects.filter(id=id).first()
+        if course:
+            #revert the boolean value
+            course.is_active = not course.is_active
+            course.save()
+            return Response({'msg':f'Course with id {id} is now {course.is_active}'},status=status.HTTP_200_OK)
+        return Response({'msg':'Course with provide id doesnot exist.'},status=status.HTTP_400_BAD_REQUEST)
 
