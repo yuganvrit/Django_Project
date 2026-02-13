@@ -6,3 +6,8 @@ class SimpleResponseSerializer(serializers.Serializer):
 
     class Meta():
         fields = ['message']
+
+
+
+
+        

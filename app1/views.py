@@ -16,7 +16,9 @@ from rest_framework.decorators import api_view,authentication_classes,permission
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
 from rest_framework.decorators import action
- 
+from rest_framework.filters import SearchFilter,OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 # class SimpleReponseView(APIView):
 #     def get(self, request):
 #         data = {
@@ -454,16 +456,4 @@ class CourseViewset(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
-
-    #new endpoint to active or deactive status of course 
-    @action(methods=['post'],detail=False,url_path='active',url_name='active')
-    def active(self,request):
-        id = request.data.get('id')
-        course = Course.objects.filter(id=id).first()
-        if course:
-            #revert the boolean value
-            course.is_active = not course.is_active
-            course.save()
-            return Response({'msg':f'Course with id {id} is now {course.is_active}'},status=status.HTTP_200_OK)
-        return Response({'msg':'Course with provide id doesnot exist.'},status=status.HTTP_400_BAD_REQUEST)
-
+   
