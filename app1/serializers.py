@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Student,Book,Author
+from .models import Student,Book,Author,Course
 from django.contrib.auth.models import User
 
 class StudentSerializer(serializers.Serializer):
@@ -33,31 +33,31 @@ class NewStudentSerializer(serializers.ModelSerializer):
 
 
 
-    def to_internal_value(self, data):
-        return data
+    # def to_internal_value(self, data):
+    #     return data
 
 
-    def validate(self, attrs):
-        age = attrs.get('age')
-        if age > 5:
-            raise serializers.ValidationError("Serailizer Age not must be greater than 5")
-        return attrs
+    # def validate(self, attrs):
+    #     age = attrs.get('age')
+    #     if age > 5:
+    #         raise serializers.ValidationError("Serailizer Age not must be greater than 5")
+    #     return attrs
     
 
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+    # def update(self, instance, validated_data):
+    #     return super().update(instance, validated_data)
     
 
-    def create(self, validated_data):
-        return super().create(validated_data)
+    # def create(self, validated_data):
+    #     return super().create(validated_data)
     
 
-    def to_representation(self, instance):
-        #uppercase the name attribute of instance 
-        # instance.name = instance.name.upper()
-        # instance.adult = instance.is_adult
-        # print(instance.adult)
-        return super().to_representation(instance)
+    # def to_representation(self, instance):
+    #     #uppercase the name attribute of instance 
+    #     # instance.name = instance.name.upper()
+    #     # instance.adult = instance.is_adult
+    #     # print(instance.adult)
+    #     return super().to_representation(instance)
 
 
 
@@ -139,3 +139,7 @@ class LoginSerializer(serializers.Serializer):
     
 
 
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course 
+        fields = "__all__"
