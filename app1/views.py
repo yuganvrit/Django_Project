@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from .serializers import StudentSerializer
-from .random_class import Student
+# from .random_class import Student
 from .models import Student 
 from .serializers import NewStudentSerializer,AuthorSerializer,UserRegisterSerializer,LoginSerializer
 from rest_framework import status
@@ -386,5 +386,43 @@ class UserListAPIView(APIView):
         users = User.objects.all()
         serializer = UserRegisterSerializer(users, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class StudentUpdateOrDeleteAPIView(APIView):
+
+    def get_object(self, request, pk):
+        try:
+            return Student.objects.get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({'message': 'student with {pk} doesnot exits'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def put(self, request, pk):
+
+        student = self.get_object(pk)
+        serializer = NewStudentSerializer(student, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': 'student not found'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    def patch(self, request, pk):
+
+        student = self.get_object(pk)
+        serializer = NewStudentSerializer(student, data=request.data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': 'student not found'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    def delete(self, request, pk):
+
+        student = self.get_object(pk)
+        student.delete()
+        return Response({'message': 'student with id {pk} deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 

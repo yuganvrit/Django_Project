@@ -13,5 +13,6 @@ urlpatterns = [
     # path('users/login', views.login_user, name='login_users'),
     path('hello-world/', views.simple_hello_world, name='hello-world'),
     path('users/login/', views.LoginUserAPIView.as_view(), name = 'LoginUser'),
-    path('users/', views.UserListAPIView.as_view(), name='users')
+    path('users/', views.UserListAPIView.as_view(), name='users'),
+    path('update-student/<int:pk>/', views.StudentUpdateOrDeleteAPIView, name = 'updatestudent'),
 ]
