@@ -119,3 +119,52 @@ class ClassRoom(models.Model):
     
 
     
+
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class Category(models.Model):
+    """
+    Groups transactions (e.g., Food, Rent, Salary, Entertainment).
+    """
+    name = models.CharField(max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="categories")
+    icon = models.CharField(max_length=50, blank=True, help_name="Lucide icon name")
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
+
+class Transaction(models.Model):
+    """
+    The core data point: represents money moving in or out.
+    """
+    TRANSACTION_TYPE_CHOICES = [
+        ('INCOME', 'Income'),
+        ('EXPENSE', 'Expense'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions")
+    category = models.ForeignKey(
+        Category, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name="transactions"
+    )
+    title = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_type = models.CharField(max_length=7, choices=TRANSACTION_TYPE_CHOICES)
+    date = models.DateField()
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date'] # Shows newest transactions first
+
+    def __str__(self):
+        return f"{self.title} - {self.amount}"

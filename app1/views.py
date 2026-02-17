@@ -18,6 +18,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter,OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from .pagination import CustomLimitOffsetPagination
 
 # class SimpleReponseView(APIView):
 #     def get(self, request):
@@ -433,18 +434,11 @@ from rest_framework.generics import RetrieveAPIView
 
 
 
-class StudentGenericView(generics.GenericAPIView,mixins.CreateModelMixin):
+class StudentGenericView(viewsets.ModelViewSet):
     serializer_class = NewStudentSerializer
     queryset = Student.objects.all()
 
-    def post(self,request,*args,**kwargs):
-        return self.create(request,*args,**kwargs)
-
-
-
-    def perform_create(self, serializer):
-        print('hello student is being created. Please wait for a while')
-        serializer.save()
+    
 
 
 
@@ -455,5 +449,15 @@ class CourseViewset(viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticated]
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = CustomLimitOffsetPagination
 
-   
+    #new endpoint to active or deactive status of course 
+    @action(methods=['post'],detail=False,url_path='seed',url_name='seed')
+    def seed_course(self,request):
+        for i in range(100,10000):
+            Course.objects.create(name=f'course{i}')
+
+        return Response({'msg':'created'},status=status.HTTP_200_OK)
+
+
+    
